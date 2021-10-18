@@ -5,12 +5,14 @@ import pandas as pd
 import pymongo
 from collections import Counter
 import operator
-app=Flask(__name__)
+
 from youtube import *
 from twitter import *
 from reddit import *
 from tumblr import *
-from recommender import *
+
+from recommender_dup import *
+app=Flask(__name__)
 client=pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Social_media_data?retryWrites=true&w=majority")
 db=client['Social_media_data']
 class Analytics:
@@ -113,12 +115,13 @@ class Analytics:
 		}
 		return data
 	
-	@app.route('/recommenderCompetitior/<brand>')
-	def recommenderCompetitior(brand):
+	@app.route('/recommenderCompetitor/<brand>')
+	def recommenderCompetitor(brand):
+		
 		recommend=Recommender();
-		#competitior=recommend.recommendComeptitior(brand)
+		competitors=recommend.recommendComeptitor(brand)
 		recommend_competitor={
-		"competitior":"samsung"
+		"competitior":competitors
 		}
 		return recommend_competitor
 		
