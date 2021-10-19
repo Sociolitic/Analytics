@@ -2,5 +2,6 @@ flask
 numpy
 pandas
 pymongo[srv]
-datetime
-
+nltk
+sklearn
+networkx

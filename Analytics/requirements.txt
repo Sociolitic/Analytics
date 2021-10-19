@@ -1,2 +1,7 @@
 flask
 json
+numpy
+pandas
+pymongo[srv]
+nltk
+sklearn

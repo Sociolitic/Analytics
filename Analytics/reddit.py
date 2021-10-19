@@ -8,6 +8,7 @@ import re
 import time
 from datetime import datetime,timedelta
 from nltk.tokenize import sent_tokenize
+nltk.download('stopwords',download_dir='/root/nltk_data')
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 stop_words = stopwords.words('english')
@@ -40,25 +41,56 @@ class Reddit:
 
 	def hotTopicBaseOnCc(self):
 		try:
-		    commment_max=self.new_df['comments_num'].max()
-		    hotTopic=self.new_df.loc[self.new_df['comments_num']==commment_max]
-		    return str(hotTopic.title)
-		except:
-		    return ""
+			title=self.df['text']
+			self.new_df['title']=title
+			id=self.df['id']
+			self.new_df['id']=id
+			commment_max=self.new_df['comments_num'].max()
+			hotTopic=self.new_df.loc[self.new_df['comments_num']==commment_max]
+			data={
+				"id":[str(i) for i in hotTopic["id"]],
+				"title":[str(i) for i in hotTopic["title"]]
+			}
+			#data=jsonify(data)
+			return data
+		except Exception as e:
+			print("error in hoptopicbasedoncc!")
+			print(e)
+			return []
 
 	def hotTopicBasedOnScore(self):
 		try:
-		    upvotesmax=self.new_df["score"].max()
-		    hottopicscore=self.new_df[self.new_df['score']==upvotesmax]
-		    return str(hottopicscore.title)
-		except:
-		    return ""
+			upvotesmax=self.new_df["score"].max()
+			hottopicscore=self.new_df[self.new_df['score']==upvotesmax]
+			data={
+			"id":[str(i) for i in hottopicscore["id"]],
+			"title":[str(i) for i in hottopicscore["title"]]
+			}
+			#data=jsonify(data)
+			return data
+		except Exception as e:
+			print("error in hottopicbasedonscore!")
+			print(e)
+			return []		
+		    
 	def __similarity_Matrix(self,comments):
 		sentences = [] 
 		for s in comments:
 			sentences.append(sent_tokenize(s))
 		sentences = [y for x in sentences for y in x] # flatten list
-		
+		#translate language
+		try:
+			lang = detect(sentences)
+			if lang != 'en':
+		    		translator = google_translator()
+		    		sentences = translator.translate (sentences,lang_tgt='en')
+		except :
+			try:
+		    		translator = google_translator()
+		    		sentences = translator.translate (sentences,lang_tgt='en')
+			except:
+			    	pass
+
 		TAG_RE = re.compile(r'<[^>]+>')
 		#remove html tags
 		def remove_tags(text):
@@ -68,7 +100,10 @@ class Reddit:
         	#remove links
 		sentences=[re.sub(r'http\S+', '', text) for text in sentences]
 		# remove punctuations, numbers and special characters
-		clean_sentences = pd.Series(sentences).str.replace("[^a-zA-Z]", " ")
+		#clean_sentences = pd.Series(sentences).str.replace("[^a-zA-Z]", " ")
+		def remove_pns(sentence):
+			return re.sub("[^a-zA-Z]"," ",sentence)
+		clean_sentences=[remove_pns(sentence) for sentence in sentences]
 		
 		# make alphabets lowercase
 		clean_sentences = [s.lower() for s in clean_sentences]
@@ -125,13 +160,13 @@ class Reddit:
 				     comments.append(self.new_df['comments'][i]['comment'])
 				else:
 				    print("No comments for the post!!")
-				    new_df.drop(i,inplace=True)
+				    self.new_df=self.new_df.drop(i)
 			else:
 				if(len(self.new_df['comments'][i])>0):
 				    comments.append(self.new_df['comments'][i])
 				else:
 				    print("No comments for the post!!")
-				    self.new_df.drop(i,inplace=True)
+				    self.new_df=self.new_df.drop(i)
 			    
 		self.new_df.reset_index(inplace=True)
 			    

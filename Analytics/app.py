@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import request
 import json
 import numpy as np 
 import pandas as pd 
@@ -17,97 +18,112 @@ client=pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf
 db=client['Social_media_data']
 class Analytics:
 	@app.route('/')
-	@app.route('/analytics/<brand>/<duration>')
-	def analytics(brand,duration):
-
-		#youtube
-		duration=int(duration)
-		youtube=YouTube(brand,duration)
-		youtube_Hashtags=youtube.getHashTags()
-		youtube_InfluencingChannels=youtube.InfluencingChannels()
-		youtube_moredisccussions=youtube.ChannelsWithMoreDiscussions()
-		youtube_categories=youtube.categoriesOfMentions()
-
-
-
-		#twitter
-		twitter=Twitter(brand,duration)
-		twitter_hashtags=twitter.HashTags()
-		twitter_Influencinguser=twitter.findInfluentialUser()
+	def start():
+		return "working!! :)";
+	@app.route('/analytics/',methods=['GET'])
+	def analytics():
+	
+		brand=request.args.get("brand")
+		duration=request.args.get("duration")
+		if(brand!=None and duration!=None):
+			#youtube
+			duration=int(duration)
+			youtube=YouTube(brand,duration)
+			youtube_Hashtags=youtube.getHashTags()
+			youtube_InfluencingChannels=youtube.InfluencingChannels()
+			youtube_moredisccussions=youtube.ChannelsWithMoreDiscussions()
+			youtube_categories=youtube.categoriesOfMentions()
 
 
 
-		#Reddit
-		reddit=Reddit(brand,duration)
-		reddit_hottopicbasedoncomment=reddit.hotTopicBaseOnCc();
-		reddit_hottopicbasedonscore=reddit.hotTopicBasedOnScore();
-		
+			#twitter
+			twitter=Twitter(brand,duration)
+			twitter_hashtags=twitter.HashTags()
+			twitter_Influencinguser=twitter.findInfluentialUser()
 
 
 
-		#tumblr
-		tumbulr=Tumblr(brand,duration)
-		tumbulr_hashtags=tumbulr.getHashTags();
-
-		Data={
-		    "youtube":
-			{"hashtags":youtube_Hashtags,"InfluencingChannels":youtube_InfluencingChannels,"ChannelWithMoreDiscussions":youtube_moredisccussions,
-			    "categoriesOfMentions":youtube_categories
-			    
-			},
-		    "Twitter":
-		    {
-			    
-			    "hashtags":twitter_hashtags,"InfluencingUser":twitter_Influencinguser
-
-		    },
-		    "Reddit":{
-			"hottopicbasedoncommentscount":reddit_hottopicbasedoncomment,
-			"hottopicbasedonscore":reddit_hottopicbasedonscore,
+			#Reddit
+			reddit=Reddit(brand,duration)
+			reddit_hottopicbasedoncomment=reddit.hotTopicBaseOnCc();
+			reddit_hottopicbasedonscore=reddit.hotTopicBasedOnScore();
 			
 
 
-		    },
-		    "tumbulr":{
-			    "hashtags":tumbulr_hashtags
-		    }
-		}
-		json_data = json.dumps(Data)
-		return json_data
-	@app.route('/Text_analytics/<brand>/<duration>')
-	def Text_Analytics(brand,duration):
-		duration=int(duration)
-		#Reddit
-		reddit=Reddit(brand,duration)
-		reddit_summary=reddit.getSummary();
+
+			#tumblr
+			tumbulr=Tumblr(brand,duration)
+			tumbulr_hashtags=tumbulr.getHashTags();
+
+			Data={
+			    "youtube":
+				{"hashtags":youtube_Hashtags,"influencingChannels":youtube_InfluencingChannels,"ChannelWithMoreDiscussions":youtube_moredisccussions,
+				    "categoriesOfMentions":youtube_categories
+				    
+				},
+			    "twitter":
+			    {
+				    
+				    "hashtags":twitter_hashtags,"influencingUser":twitter_Influencinguser
+
+			    },
+			    "reddit":{
+				"hottopicbasedoncommentscount":reddit_hottopicbasedoncomment,
+				"hottopicbasedonscore":reddit_hottopicbasedonscore,
+				
+
+
+			    },
+			    "tumbulr":{
+				    "hashtags":tumbulr_hashtags
+			    }
+			}
+			json_data = json.dumps(Data)
+			return json_data
+		else:
+			return "brand and duration required!!"
+	@app.route('/Text_analytics/',methods=['GET'])
+	def Text_Analytics():
+	
+		brand=request.args.get("brand")
+		duration=request.args.get("duration")
+		if brand!=None or duration!=None:
 		
-		#youtube
-		youtube=YouTube(brand,duration)
-		youtube_summary= youtube.getSummary();
-		
-		#twitter
-		twitter=Twitter(brand,duration)
-		#questions=twitter.getNegativeQuestions();
-		Data={
-		    "reddit":{
-			"Summary":reddit_summary
+			duration=int(duration)
+			#Reddit
+			reddit=Reddit(brand,duration)
+			reddit_summary=reddit.getSummary();
 			
+			#youtube
+			youtube=YouTube(brand,duration)
+			youtube_summary= youtube.getSummary();
+			
+			#twitter
+			#twitter=Twitter(brand,duration)
+			#questions=twitter.getNegativeQuestions();
+			Data={
+			    "reddit":{
+				"Summary":reddit_summary
+				
 
 
-		    },
-		    "youtube":{
-		    "summary":youtube_summary
-		    },
-		    
-		    "twitter":{
-		    #"Negative_Questions":questions
-		    }
-		    
-		}
-		json_data = json.dumps(Data)
-		return json_data
-	@app.route('/recommenderUser/<user>')
-	def recommenderUser(user):
+			    },
+			   "youtube":{
+			    "summary":youtube_summary
+			    },
+			    
+			    "twitter":{
+			    "negative_questions":questions
+			    }
+			    
+			}
+			json_data = json.dumps(Data)
+			return json_data
+		else:
+			return "brand and duration is required!!"
+	@app.route('/recommenderUser/',methods=['GET'])
+	def recommenderUser():
+		user=request.args.get("user")
 		recommend=Recommender();
 		recommendation= recommend.recommendUser(user)
 		data={
@@ -115,16 +131,18 @@ class Analytics:
 		}
 		return data
 	
-	@app.route('/recommenderCompetitor/<brand>')
-	def recommenderCompetitor(brand):
-		
-		recommend=Recommender();
-		competitors=recommend.recommendComeptitor(brand)
-		recommend_competitor={
-		"competitior":competitors
-		}
-		return recommend_competitor
-		
+	@app.route('/recommenderCompetitor/',methods=['GET'])
+	def recommenderCompetitor():
+		if brand!=None:
+			brand=request.args.get("brand")
+			recommend=Recommender();
+			competitors=recommend.recommendComeptitor(brand)
+			recommend_competitor={
+			"competitior":competitors
+			}
+			return recommend_competitor
+		else:
+			return "brand required!!"
 	
 		
 		

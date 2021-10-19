@@ -8,8 +8,10 @@ from datetime import datetime,timedelta
 import re
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-#nltk.download('punkt')
-#nltk.download('wordnet')
+nltk.download('stopwords',download_dir='/root/nltk_data')
+nltk.download('stopwords',download_dir='./')
+nltk.download('punkt',download_dir="./")
+nltk.download('wordnet',download_dir="./")
 stop_words = nltk.corpus.stopwords.words('english')
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
@@ -36,38 +38,46 @@ class YouTube:
 		    
 		    self.numeric_df=numeric_df
 		except:
-		    print(df)
+		    #print(df)
 		    print("data doesn't exists!")
-		print(df.columns)
+		#print(df.columns)
 		self.df=df
 
 	def getHashTags(self):
 		try:
 		    self.tags=[tag for list1 in self.numeric_df['tags'] for tag in list1]
 		    frequency=Counter(self.tags)
-		    #frequency=sorted(frequency.items(),key=operator.itemgetter(1),reverse=True)
-		    #top15=dict(frequency[:15])
-		    return frequency
-		except:
-		    return []
+		    frequency=sorted(frequency.items(),key=operator.itemgetter(1),reverse=True)
+		    top15=dict(frequency[:15])
+		    return top15
+		except Exception as e:
+			print("error in get hashtags of youttube");
+			return []
 
 	def InfluencingChannels(self,num=10):
 		try:
-		    likecount=self.numeric_df[['channelTitle','likeCount']]
-		    sorted_values=likecount.sort_values('likeCount',axis=0,ascending=False)
-		    top_values=sorted_values.iloc[:num]
-		    return top_values.to_dict('records')
-		except:
-		    return []
+			self.numeric_df['id']=self.df['id']
+			likecount=self.numeric_df[['channelTitle','likeCount','id']]
+			sorted_values=likecount.sort_values('likeCount',axis=0,ascending=False)
+			top_values=sorted_values.iloc[:num]
+			data= top_values.to_dict('records')
+			#print(type(data))
+		except Exception as e:
+			print("error in influencin channels function!!");
+			print(e)
+			return []
 
 	def ChannelsWithMoreDiscussions(self,num=10):
 		try:
-		    commentCount=self.numeric_df[['channelTitle','commentCount']]
+		    commentCount=self.numeric_df[['channelTitle','commentCount','id']]
 		    sorted_values=commentCount.sort_values('commentCount',axis=0,ascending=False)
 		    top_values=sorted_values.iloc[:num]
-		    return top_values.to_dict('records')
-		except:
-		    return []
+		    data= top_values.to_dict('records')
+		    #print(type(data))
+		    return data
+		except Exception as e:
+			print("problem with channel with mpre discussion function")
+			return []
 
 	def categoriesOfMentions(self):
 		try:
@@ -78,9 +88,12 @@ class YouTube:
 				else:
 				    categorycount[self.numeric_df['category'][i]]=0
 			return categorycount
-		except:
+		except Exception as e:
+			print(e)
 			print("problem with categories!!")
 			return []
+
+			#return []
 	
 	def __similarity_Matrix(self,comments):
 		sentences = [] 
@@ -89,14 +102,14 @@ class YouTube:
 		sentences = [y for x in sentences for y in x] # flatten list
 		#translate language
 		try:
-			lang = detect(sentence)
+			lang = detect(sentences)
 			if lang != 'en':
 		    		translator = google_translator()
-		    		sentence = translator.translate (sentence,lang_tgt='en')
+		    		sentences = translator.translate (sentences,lang_tgt='en')
 		except :
 			try:
 		    		translator = google_translator()
-		    		sentence = translator.translate (sentence,lang_tgt='en')
+		    		sentences = translator.translate (sentences,lang_tgt='en')
 			except:
 			    	pass
 			    	
@@ -174,7 +187,7 @@ class YouTube:
 				comments.append(comments_df['comments'][i]['Comment'])
 			else:
 				print("No comments for the video!!")
-				comments_df.drop(i,inplace=True)
+				comments_df=comments_df.drop(i)
 		comments_df.reset_index(inplace=True)
 		'''self.word_embeddings = {}
 		f = open('./analytics/glove.6B.100d.txt', encoding='utf-8')
