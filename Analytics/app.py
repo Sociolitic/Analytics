@@ -99,8 +99,8 @@ class Analytics:
 			youtube_summary= youtube.getSummary();
 			
 			#twitter
-			#twitter=Twitter(brand,duration)
-			#questions=twitter.getNegativeQuestions();
+			twitter=Twitter(brand,duration)
+			questions=twitter.getNegativeQuestions();
 			Data={
 			    "reddit":{
 				"Summary":reddit_summary
@@ -133,8 +133,8 @@ class Analytics:
 	
 	@app.route('/recommenderCompetitor/',methods=['GET'])
 	def recommenderCompetitor():
+		brand=request.args.get("brand")
 		if brand!=None:
-			brand=request.args.get("brand")
 			recommend=Recommender();
 			competitors=recommend.recommendComeptitor(brand)
 			recommend_competitor={

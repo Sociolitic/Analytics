@@ -8,7 +8,7 @@ import re
 import time
 from datetime import datetime,timedelta
 from nltk.tokenize import sent_tokenize
-nltk.download('stopwords',download_dir='/root/nltk_data')
+nltk.download('stopwords',download_dir='./')
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 stop_words = stopwords.words('english')
@@ -151,6 +151,9 @@ class Reddit:
 		return ranked_sentences[0][1]
 
 	def getSummary(self):
+		if(self.df.empty==True):
+			print("data doesn't exists!!")
+			return []
 		required=self.df['id']
 		self.new_df['id']=required
 		comments=[]
@@ -190,7 +193,7 @@ class Reddit:
 				#text summary
 		text_summary={}
 		for i in range(len(similarity_matrices)):
-			text_summary[self.new_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),self.new_df['score'][i]]
+			text_summary[self.new_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(self.new_df['score'][i])]
 		return text_summary
     
 		

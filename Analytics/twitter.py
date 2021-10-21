@@ -17,6 +17,11 @@ class Twitter:
 		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
 		result=self.twitter.find(query)
 		df=pd.DataFrame(list(result))
+		if(df.empty==True):
+			print("data doesn't exists!!")
+		else:
+			print(df)
+			
 		try:    
 			#getting number columns
 			dict1=df['misc']
@@ -88,7 +93,7 @@ class Twitter:
 		tweet = re.sub(r'<[^>]+>',' ',tweet)
 		
 		tweet = tweet.lower() # lower case
-		tweet = re.sub("[^a-zA-Z0-9]", ' ', tweet) # strip punctuation
+		tweet = re.sub("[^a-zA-Z0-9?]", ' ', tweet) # strip punctuation
 		tweet = re.sub('\s+', ' ', tweet) #remove double spacing
 		#remove emojils
 		#tweet=removeemoji(tweet)
@@ -97,7 +102,7 @@ class Twitter:
 	def __questions(self,negative_mentions):
 		questions=negative_mentions[negative_mentions['cleaned_text'].str.endswith("?")]
 		#result=questions['cleaned_text'].str.contains(self.brand)
-		result= questions['cleaned_text'].str.contains("[Hh]ow") | questions['text'].str.contains("[Ww]hat") | questions['text'].str.contains("[Ww]here") | questions['text'].str.contains("[wW]ho") | questions['text'].str.contains("[Ww]hom")
+		result= questions['cleaned_text'].str.contains("[Hh]ow") | questions['cleaned_text'].str.contains("[Ww]hat") | questions['cleaned_text'].str.contains("[Ww]here") | questions['cleaned_text'].str.contains("[wW]ho") | questions['cleaned_text'].str.contains("[Ww]hom")
 		questions=questions[result] 
 		return (list(set(questions.text)))
 	    

@@ -8,7 +8,7 @@ from datetime import datetime,timedelta
 import re
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-nltk.download('stopwords',download_dir='/root/nltk_data')
+#nltk.download('stopwords',download_dir='/root/nltk_data')
 nltk.download('stopwords',download_dir='./')
 nltk.download('punkt',download_dir="./")
 nltk.download('wordnet',download_dir="./")
@@ -177,6 +177,9 @@ class YouTube:
 	    ranked_sentences = sorted(((scores[i],s) for i,s in enumerate(sentences) ), reverse=True)
 	    return ranked_sentences[0][1]
 	def getSummary(self):
+		if(self.df.empty==True):
+			print("data doesn't exists!")
+			return []
 		required=self.df['id']
 		self.numeric_df['id']=required
 		comments_df=self.numeric_df[['id','comments','commentCount']]
@@ -203,7 +206,7 @@ class YouTube:
     			similarity_matrices.append(self.__similarity_Matrix(i))
 		text_summary={}
 		for i in range(len(similarity_matrices)):
-			text_summary[comments_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),comments_df['commentCount'][i]]
+			text_summary[comments_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(comments_df['commentCount'][i])]
 
 		return text_summary
     		
