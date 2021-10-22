@@ -132,6 +132,58 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "profile_insertion_trigger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/insertionTrigger/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"insertionTrigger",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "profile_deletion_trigger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/deletionTrigger/?profile=615d489933252d31ce6856c1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"deletionTrigger",
+						""
+					],
+					"query": [
+						{
+							"key": "profile",
+							"value": "615d489933252d31ce6856c1"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
