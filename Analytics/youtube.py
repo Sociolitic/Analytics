@@ -54,6 +54,8 @@ class YouTube:
 			print("error in get hashtags of youttube");
 			return []
 
+
+	
 	def InfluencingChannels(self,num=10):
 		try:
 			self.numeric_df['id']=self.df['id']
@@ -61,6 +63,7 @@ class YouTube:
 			sorted_values=likecount.sort_values('likeCount',axis=0,ascending=False)
 			top_values=sorted_values.iloc[:num]
 			data= top_values.to_dict('records')
+			return data
 			#print(type(data))
 		except Exception as e:
 			print("error in influencin channels function!!");
@@ -146,13 +149,16 @@ class YouTube:
 			else:
 			    v = np.zeros((100,))
 			sentence_vectors.append(v)'''
-		vectorizer = TfidfVectorizer()
-		vectors = vectorizer.fit_transform(clean_sentences)
-		feature_names = vectorizer.get_feature_names()
-		dense = vectors.todense()
-		sentence_vectors = dense.tolist()
-		# similarity matrix
-		sim_mat = np.zeros([len(sentences), len(sentences)])
+		try:
+			vectorizer = TfidfVectorizer()
+			vectors = vectorizer.fit_transform(clean_sentences)
+			feature_names = vectorizer.get_feature_names()
+			dense = vectors.todense()
+			sentence_vectors = dense.tolist()
+			# similarity matrix
+			sim_mat = np.zeros([len(sentences), len(sentences)])
+		except:
+			pass
 		#print(len(sentences))
 		#print(len(sentence_vectors))
 		#print(len(sim_mat))
@@ -209,7 +215,7 @@ class YouTube:
     			similarity_matrices.append(self.__similarity_Matrix(i))
 		text_summary={}
 		for i in range(len(similarity_matrices)):
-			text_summary[comments_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(comments_df['commentCount'][i])]
+			text_summary[str(comments_df['id'][i])]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(comments_df['commentCount'][i])]
 
 		return text_summary
     		

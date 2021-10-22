@@ -47,6 +47,7 @@ class Reddit:
 			self.new_df['id']=id
 			commment_max=self.new_df['comments_num'].max()
 			hotTopic=self.new_df.loc[self.new_df['comments_num']==commment_max]
+			#hottopicsscore=hottopicscore.drop_duplicates(subset=['title'])
 			data={
 				"id":[str(i) for i in hotTopic["id"]],
 				"title":[str(i) for i in hotTopic["title"]]
@@ -62,6 +63,7 @@ class Reddit:
 		try:
 			upvotesmax=self.new_df["score"].max()
 			hottopicscore=self.new_df[self.new_df['score']==upvotesmax]
+			hottopicsscore=hottopicscore.drop_duplicates(subset=['title'])
 			data={
 			"id":[str(i) for i in hottopicscore["id"]],
 			"title":[str(i) for i in hottopicscore["title"]]
@@ -123,11 +125,14 @@ class Reddit:
 			else:
 			    v = np.zeros((100,))
 			sentence_vectors.append(v)'''
-		vectorizer = TfidfVectorizer()
-		vectors = vectorizer.fit_transform(clean_sentences)
-		feature_names = vectorizer.get_feature_names()
-		dense = vectors.todense()
-		sentence_vectors = dense.tolist()
+		try:
+			vectorizer = TfidfVectorizer()
+			vectors = vectorizer.fit_transform(clean_sentences)
+			feature_names = vectorizer.get_feature_names()
+			dense = vectors.todense()
+			sentence_vectors = dense.tolist()
+		except:
+			pass
 		#print(sentence_vectors)
 		# similarity matrix
 		sim_mat = np.zeros([len(sentences), len(sentences)])
@@ -136,8 +141,11 @@ class Reddit:
 		#print(len(sim_mat))
 		for i in range(len(sentences)):
 			for j in range(len(sentences)):
-				if i != j:
-				    sim_mat[i][j] = cosine_similarity(np.array(sentence_vectors[i]).reshape(1,len(feature_names)), np.array(sentence_vectors[j]).reshape(1,len(feature_names)))
+				try:
+					if i != j:
+				    		sim_mat[i][j] = cosine_similarity(np.array(sentence_vectors[i]).reshape(1,len(feature_names)), np.array(sentence_vectors[j]).reshape(1,len(feature_names)))
+				except:
+					pass
 		    
 		#print("hello")
 		return sim_mat
@@ -197,7 +205,7 @@ class Reddit:
 				#text summary
 		text_summary={}
 		for i in range(len(similarity_matrices)):
-			text_summary[self.new_df['id'][i]]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(self.new_df['score'][i])]
+			text_summary[str(self.new_df['id'][i])]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(self.new_df['score'][i])]
 		return text_summary
     
 		
