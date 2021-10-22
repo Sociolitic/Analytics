@@ -8,7 +8,7 @@ from datetime import datetime,timedelta
 import re
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-nltk.download('stopwords',download_dir='/root/nltk_data')
+#nltk.download('stopwords',download_dir='/root/nltk_data')
 nltk.download('stopwords',download_dir='./')
 nltk.download('punkt',download_dir="./")
 nltk.download('wordnet',download_dir="./")
@@ -183,15 +183,18 @@ class YouTube:
 		required=self.df['id']
 		self.numeric_df['id']=required
 		comments_df=self.numeric_df[['id','comments','commentCount']]
+		for i in comments_df.index:
+			x=comments_df['comments'][i]
+			if(type(x) is dict and ('Comment' not in x)):
+				print("no comments for the video")
+				comments_df=comments_df.drop(i)
+		comments_df.reset_index(inplace=True,drop=True)
+		comments_df=comments_df.head(20)
 		comments=[]
 		for i in comments_df.index:
 			x=comments_df['comments'][i]
-			if(type(x) is dict and ('Comment' in x)):
-				comments.append(comments_df['comments'][i]['Comment'])
-			else:
-				print("No comments for the video!!")
-				comments_df=comments_df.drop(i)
-		comments_df.reset_index(inplace=True)
+			comments.append(comments_df['comments'][i]['Comment'])
+		
 		'''self.word_embeddings = {}
 		f = open('./analytics/glove.6B.100d.txt', encoding='utf-8')
 		for line in f:

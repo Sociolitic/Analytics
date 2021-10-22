@@ -6,7 +6,8 @@ import pandas as pd
 import pymongo
 from collections import Counter
 import operator
-
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from youtube import *
 from twitter import *
 from reddit import *

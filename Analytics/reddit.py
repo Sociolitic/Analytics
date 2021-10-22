@@ -156,22 +156,26 @@ class Reddit:
 			return []
 		required=self.df['id']
 		self.new_df['id']=required
+		new_df=self.new_df
+		new_df=new_df.sort_values('score',ascending=False)
+		for i in new_df.index:
+			if(type(new_df['comments'][i]) is dict):
+				if(len(new_df['comments'][i]['comment'])==0):
+					new_df.drop(i,inplace=True)
+			else:
+				if(len(new_df['comments'][i])==0):
+					new_df.drop(i,inplace=True)
+		new_df.reset_index(inplace=True,drop=True)
+		
+		new_df=new_df.head(20)
+		new_df=new_df[['id','comments','score']]
 		comments=[]
 		for i in self.new_df.index:
 			if(type(self.new_df['comments'][i]) is dict):
-				if(len(self.new_df['comments'][i]['comment'])>0):
-				     comments.append(self.new_df['comments'][i]['comment'])
-				else:
-				    print("No comments for the post!!")
-				    self.new_df=self.new_df.drop(i)
+				comments.append(self.new_df['comments'][i]['comment'])
 			else:
-				if(len(self.new_df['comments'][i])>0):
-				    comments.append(self.new_df['comments'][i])
-				else:
-				    print("No comments for the post!!")
-				    self.new_df=self.new_df.drop(i)
-			    
-		self.new_df.reset_index(inplace=True)
+				comments.append(self.new_df['comments'][i])
+	
 			    
 			    
 			    #word embeddings
