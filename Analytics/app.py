@@ -11,6 +11,7 @@ from youtube import *
 from twitter import *
 from reddit import *
 from tumblr import *
+from Trigger import *
 
 from recommender_dup import *
 app=Flask(__name__)
@@ -144,7 +145,15 @@ class Analytics:
 		else:
 			return "brand required!!"
 	
-		
+	@app.route('/insertionTrigger/',methods=['GET'])
+	def insertionTrigger():
+		insertion()
+		return "computation done successfully!!"
+	@app.route('/deletionTrigger/',methods=['GET'])
+	def deletionTrigger():
+		profile=request.args.get("profile")
+		deletion(profile)
+		return "successful!!"
 		
 if(__name__=='__main__'):
     app.run(host='0.0.0.0',debug=True)

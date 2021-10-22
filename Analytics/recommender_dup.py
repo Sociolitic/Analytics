@@ -8,6 +8,9 @@ class Recommender:
 	def recommendComeptitor(self,brand):
 		competitor=db['Recommend_Competitors']
 		data=competitor.find({"brand":brand})
+		if(data.count()==0):
+			print("brand doesn't exists!!")
+			return []
 		for doc in data:
 			recommendation=doc['competitors']
 		if(len(recommendation)==3):
@@ -19,6 +22,9 @@ class Recommender:
 	def recommendUser(self,user):
 		recommend_user=db['Recommendation']
 		data=recommend_user.find({"user":user})
+		if(data.count()==0):
+			print("user doesn't exists!")
+			return []
 		for doc in data:
 			brands=doc['recommendation']
 		randlist=set()

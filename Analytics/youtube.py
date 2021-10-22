@@ -8,7 +8,7 @@ from datetime import datetime,timedelta
 import re
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-#nltk.download('stopwords',download_dir='/root/nltk_data')
+nltk.download('stopwords',download_dir='/root/nltk_data')
 nltk.download('stopwords',download_dir='./')
 nltk.download('punkt',download_dir="./")
 nltk.download('wordnet',download_dir="./")

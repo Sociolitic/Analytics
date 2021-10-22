@@ -5,3 +5,4 @@ pandas
 pymongo[srv]
 nltk
 sklearn
+bson
