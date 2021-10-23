@@ -21,6 +21,7 @@ class Reddit:
 	def __init__(self,brand,duration):
 		self.reddit=db['reddit']
 		self.brand=brand
+		self.duration=duration
 		#timeforrequested
 		minimumtime=datetime.now()-timedelta(days=duration)
 		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
@@ -159,7 +160,7 @@ class Reddit:
 		return ranked_sentences[0][1]
 
 	def getSummary(self):
-		if(self.df.empty==True):
+		'''if(self.df.empty==True):
 			print("data doesn't exists!!")
 			return []
 		required=self.df['id']
@@ -187,14 +188,14 @@ class Reddit:
 			    
 			    
 			    #word embeddings
-		'''self.word_embeddings = {}
+		self.word_embeddings = {}
 		f = open('./analytics/glove.6B.100d.txt', encoding='utf-8')
 		for line in f:
 			values = line.split()
 			word = values[0]
 			coefs = np.asarray(values[1:], dtype='float32')
 			self.word_embeddings[word] = coefs
-		f.close()'''
+		f.close()
 				#similarity matrix
 		self.complete_sentences=[]
 		similarity_matrices=[]
@@ -206,7 +207,25 @@ class Reddit:
 		text_summary={}
 		for i in range(len(similarity_matrices)):
 			text_summary[str(self.new_df['id'][i])]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(self.new_df['score'][i])]
+		return text_summary'''
+		
+		
+		reddit_TA=db['redditTextualAnalytics']
+		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
+		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
+		#print(cursor.count())
+		result=reddit_TA.find(query)
+		print(result.count())
+		df=pd.DataFrame(list(result))
+		df=df.head(20)
+		#print(df)
+		#print("hello")
+		text_summary={}
+		for i in df.index:
+			text_summary[str(df['text'][i])]=[str(df['summary'][i]),int(df['score'][i])]
 		return text_summary
+		
+		
     
 		
 		

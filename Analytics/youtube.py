@@ -25,6 +25,7 @@ class YouTube:
 	def __init__(self,brand,duration):
 		self.youtube=db['youTube']
 		self.brand=brand
+		self.duration=duration
 		#time for requested 
 		minimumtime=datetime.now()-timedelta(days=duration)
 		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
@@ -155,10 +156,11 @@ class YouTube:
 			feature_names = vectorizer.get_feature_names()
 			dense = vectors.todense()
 			sentence_vectors = dense.tolist()
-			# similarity matrix
-			sim_mat = np.zeros([len(sentences), len(sentences)])
+			
 		except:
 			pass
+		# similarity matrix
+		sim_mat = np.zeros([len(sentences), len(sentences)])
 		#print(len(sentences))
 		#print(len(sentence_vectors))
 		#print(len(sim_mat))
@@ -183,7 +185,7 @@ class YouTube:
 	    ranked_sentences = sorted(((scores[i],s) for i,s in enumerate(sentences) ), reverse=True)
 	    return ranked_sentences[0][1]
 	def getSummary(self):
-		if(self.df.empty==True):
+		'''if(self.df.empty==True):
 			print("data doesn't exists!")
 			return []
 		required=self.df['id']
@@ -201,14 +203,15 @@ class YouTube:
 			x=comments_df['comments'][i]
 			comments.append(comments_df['comments'][i]['Comment'])
 		
-		'''self.word_embeddings = {}
+		self.word_embeddings = {}
 		f = open('./analytics/glove.6B.100d.txt', encoding='utf-8')
 		for line in f:
 		    values = line.split()
 		    word = values[0]
 		    coefs = np.asarray(values[1:], dtype='float32')
 		    self.word_embeddings[word] = coefs
-		f.close()'''
+		f.close()
+		
 		self.complete_sentences=[]
 		similarity_matrices=[]
 		for i in comments:
@@ -218,7 +221,22 @@ class YouTube:
 			text_summary[str(comments_df['id'][i])]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(comments_df['commentCount'][i])]
 
 		return text_summary
+    		'''
     		
+		youtube_TA=db['youtubeTextualAnalytics']
+		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
+		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
+		#print(cursor.count())
+		result=youtube_TA.find(query)
+		print(result.count())
+		df=pd.DataFrame(list(result))
+		df=df.head(20)
+		#print(df)
+		#print("hello")
+		text_summary={}
+		for i in df.index:
+			text_summary[str(df['id'][i])]=[str(df['summary'][i]),int(df['commentCount'][i])]
+		return text_summary
 
 	def negativeQuestions(self):
 		pass

@@ -97,8 +97,8 @@ class Analytics:
 			reddit_summary=reddit.getSummary();
 			
 			#youtube
-			youtube=YouTube(brand,duration)
-			youtube_summary= youtube.getSummary();
+			#youtube=YouTube(brand,duration)
+			#youtube_summary= youtube.getSummary();
 			
 			#twitter
 			twitter=Twitter(brand,duration)
@@ -110,9 +110,9 @@ class Analytics:
 
 
 			    },
-			   "youtube":{
+			   '''"youtube":{
 			    "summary":youtube_summary
-			    },
+			    },'''
 			    
 			    "twitter":{
 			    "negative_questions":questions
