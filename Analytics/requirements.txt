@@ -2,7 +2,8 @@ flask
 json
 numpy
 pandas
-pymongo[srv]
+pymongo[srv]=3.12.1
 nltk
 sklearn
 bson
+langdetect

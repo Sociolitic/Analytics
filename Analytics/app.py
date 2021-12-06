@@ -24,7 +24,7 @@ class Analytics:
 		return "working!! :)";
 	@app.route('/analytics/',methods=['GET'])
 	def analytics():
-	
+
 		brand=request.args.get("brand")
 		duration=request.args.get("duration")
 		if(brand!=None and duration!=None):
@@ -58,71 +58,106 @@ class Analytics:
 			tumbulr_hashtags=tumbulr.getHashTags();
 
 			Data={
-			    "youtube":
+				"youtube":
 				{"hashtags":youtube_Hashtags,"influencingChannels":youtube_InfluencingChannels,"ChannelWithMoreDiscussions":youtube_moredisccussions,
-				    "categoriesOfMentions":youtube_categories
-				    
+					"categoriesOfMentions":youtube_categories
+					
 				},
-			    "twitter":
-			    {
-				    
-				    "hashtags":twitter_hashtags,"influencingUser":twitter_Influencinguser
+				"twitter":
+				{
+					
+					"hashtags":twitter_hashtags,"influencingUser":twitter_Influencinguser
 
-			    },
-			    "reddit":{
+				},
+				"reddit":{
 				"hottopicbasedoncommentscount":reddit_hottopicbasedoncomment,
 				"hottopicbasedonscore":reddit_hottopicbasedonscore,
 				
 
 
-			    },
-			    "tumbulr":{
-				    "hashtags":tumbulr_hashtags
-			    }
+				},
+				"tumbulr":{
+					"hashtags":tumbulr_hashtags
+				}
 			}
 			json_data = json.dumps(Data)
 			return json_data
 		else:
 			return "brand and duration required!!"
-	@app.route('/Text_analytics/',methods=['GET'])
-	def Text_Analytics():
-	
+	@app.route('/Text_analytics_New/',methods=['GET'])
+	def Text_Analytics_New():
+
 		brand=request.args.get("brand")
-		duration=request.args.get("duration")
-		if brand!=None or duration!=None:
+		#duration=request.args.get("duration")
+		if brand!=None:
 		
-			duration=int(duration)
+			
 			#Reddit
-			reddit=Reddit(brand,duration)
+			reddit=Reddit(brand,0)
 			reddit_summary=reddit.getSummary();
 			
 			#youtube
-			#youtube=YouTube(brand,duration)
-			#youtube_summary= youtube.getSummary();
+			youtube=YouTube(brand,0)
+			youtube_summary= youtube.getSummary();
 			
-			#twitter
-			twitter=Twitter(brand,duration)
-			questions=twitter.getNegativeQuestions();
+			
 			Data={
-			    "reddit":{
+				"reddit":{
 				"Summary":reddit_summary
 				
 
 
-			    },
-			   '''"youtube":{
-			    "summary":youtube_summary
-			    },'''
-			    
-			    "twitter":{
-			    "negative_questions":questions
-			    }
-			    
+				},
+				"youtube":{
+				"summary":youtube_summary
+				}
+				
+			
+				
+			}
+			json_data = json.dumps(Data)
+			return json_data
+		else:
+			return "brand is required!!"
+		
+	@app.route('/Text_analytics/',methods=['GET'])
+	def Text_Analytics():
+
+		brand=request.args.get("brand")
+		duration=request.args.get("duration")
+		if brand!=None and duration!=None:
+		
+			
+			duration=int(duration)
+			#Reddit
+			reddit=Reddit(brand,duration)
+			reddit_summary=reddit.getSummary_dup();
+			
+			#youtube
+			youtube=YouTube(brand,duration)
+			youtube_summary= youtube.getSummary_dup();
+			#twitter
+			twitter=Twitter(brand,duration)
+			questions=twitter.getNegativeQuestions();
+			Data={
+				"reddit":{
+				"Summary":reddit_summary
+				
+
+				},
+				
+				
+				"twitter":{
+				"negative_questions":questions
+				}
+				
 			}
 			json_data = json.dumps(Data)
 			return json_data
 		else:
 			return "brand and duration is required!!"
+
+
 	@app.route('/recommenderUser/',methods=['GET'])
 	def recommenderUser():
 		user=request.args.get("user")
@@ -132,7 +167,7 @@ class Analytics:
 		"recommendation":recommendation
 		}
 		return data
-	
+
 	@app.route('/recommenderCompetitor/',methods=['GET'])
 	def recommenderCompetitor():
 		brand=request.args.get("brand")
@@ -145,7 +180,7 @@ class Analytics:
 			return recommend_competitor
 		else:
 			return "brand required!!"
-	
+
 	@app.route('/insertionTrigger/',methods=['GET'])
 	def insertionTrigger():
 		insertion()

@@ -14,6 +14,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 stop_words = stopwords.words('english')
 from sklearn.metrics.pairwise import cosine_similarity
 import networkx as nx
+import json
+from bson import json_util
+from time_dependent import *
 client=pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Social_media_data?retryWrites=true&w=majority")
 db=client['Social_media_data']
 begin=time.time()
@@ -29,14 +32,14 @@ class Reddit:
 		df=pd.DataFrame(list(result))
 
 		try:
-		    #creating newdf for required df
-		    dictonary=df['misc']
-		    new_df=pd.DataFrame(list(dictonary))
-		    
-		    self.new_df=new_df
+			#creating newdf for required df
+			dictonary=df['misc']
+			new_df=pd.DataFrame(list(dictonary))
+			
+			self.new_df=new_df
 		except:
-		    print(df)
-		    print("data doesn't exists!")
+			print(df)
+			print("data doesn't exists!")
 
 		self.df=df
 
@@ -85,32 +88,32 @@ class Reddit:
 		try:
 			lang = detect(sentences)
 			if lang != 'en':
-		    		translator = google_translator()
-		    		sentences = translator.translate (sentences,lang_tgt='en')
+					translator = google_translator()
+					sentences = translator.translate (sentences,lang_tgt='en')
 		except :
 			try:
-		    		translator = google_translator()
-		    		sentences = translator.translate (sentences,lang_tgt='en')
+					translator = google_translator()
+					sentences = translator.translate (sentences,lang_tgt='en')
 			except:
-			    	pass
+					pass
 
 		TAG_RE = re.compile(r'<[^>]+>')
 		#remove html tags
 		def remove_tags(text):
-        		return TAG_RE.sub('', text)
+				return TAG_RE.sub('', text)
 		sentences=[remove_tags(r) for r in sentences]
-        	
-        	#remove links
+			
+			#remove links
 		sentences=[re.sub(r'http\S+', '', text) for text in sentences]
 		# remove punctuations, numbers and special characters
 		#clean_sentences = pd.Series(sentences).str.replace("[^a-zA-Z]", " ")
 		def remove_pns(sentence):
 			return re.sub("[^a-zA-Z]"," ",sentence)
 		clean_sentences=[remove_pns(sentence) for sentence in sentences]
-		
+
 		# make alphabets lowercase
 		clean_sentences = [s.lower() for s in clean_sentences]
-		
+
 		self.complete_sentences.append(sentences)
 		# function to remove stopwords
 		def remove_stopwords(sen):
@@ -118,13 +121,13 @@ class Reddit:
 			return sen_new
 		# remove stopwords from the sentences
 		clean_sentences = [remove_stopwords(r.split()) for r in clean_sentences]
-		
+
 		'''sentence_vectors = []
 		for i in clean_sentences:
 			if len(i) != 0:
-			    v = sum([self.word_embeddings.get(w, np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
+				v = sum([self.word_embeddings.get(w, np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
 			else:
-			    v = np.zeros((100,))
+				v = np.zeros((100,))
 			sentence_vectors.append(v)'''
 		try:
 			vectorizer = TfidfVectorizer()
@@ -144,10 +147,10 @@ class Reddit:
 			for j in range(len(sentences)):
 				try:
 					if i != j:
-				    		sim_mat[i][j] = cosine_similarity(np.array(sentence_vectors[i]).reshape(1,len(feature_names)), np.array(sentence_vectors[j]).reshape(1,len(feature_names)))
+							sim_mat[i][j] = cosine_similarity(np.array(sentence_vectors[i]).reshape(1,len(feature_names)), np.array(sentence_vectors[j]).reshape(1,len(feature_names)))
 				except:
 					pass
-		    
+			
 		#print("hello")
 		return sim_mat
 	def __most_discussed(self,sim_mat,sentences):
@@ -163,8 +166,9 @@ class Reddit:
 		'''if(self.df.empty==True):
 			print("data doesn't exists!!")
 			return []
+		self.new_df['id']=required	
 		required=self.df['id']
-		self.new_df['id']=required
+		
 		new_df=self.new_df
 		new_df=new_df.sort_values('score',ascending=False)
 		for i in new_df.index:
@@ -210,6 +214,35 @@ class Reddit:
 		return text_summary'''
 		
 		
+		'''reddit_TA=db['redditTextualAnalytics']
+		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
+		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
+		#print(cursor.count())
+		result=reddit_TA.find(query)
+		print(result.count())
+		df=pd.DataFrame(list(result))
+		df=df.head(20)
+		#print(df)
+		#print("hello")
+		text_summary={}
+		for i in df.index:
+			text_summary[str(df['text'][i])]=[str(df['summary'][i]),int(df['score'][i])]
+		return text_summary'''
+		reddit_TA=db.reddit_text_aggregation
+		#query={"tag":str(self.brand)}
+		res=reddit_TA.find({"tag":str(self.brand)},{"_id":0,"createdAt":0,"updatedAt":0,"profiles":0})
+		'''if(((result.count()))==0):
+			insert_data(str(self.brand))'''
+		return_result={}
+		for result in res:
+			return_result['tag']=result['tag']
+			return_result['years']=result['years']
+			return_result['months']=result['months']
+			return_result['days']=result['days']
+			return_result['hours']=result['hours']
+			return_result['mins']=result['mins']
+		return return_result
+	def getSummary_dup(self):
 		reddit_TA=db['redditTextualAnalytics']
 		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
 		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}

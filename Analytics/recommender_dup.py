@@ -8,7 +8,7 @@ class Recommender:
 	def recommendComeptitor(self,brand):
 		competitor=db['Recommend_Competitors']
 		data=competitor.find({"brand":brand})
-		if(data.count()==0):
+		if((data).count()==0):
 			print("brand doesn't exists!!")
 			return []
 		for doc in data:
@@ -19,10 +19,11 @@ class Recommender:
 		while(len(top3competitors)<3):
 		    top3competitors.add(random.choice(recommendation))
 		return list(top3competitors)
+
 	def recommendUser(self,user):
 		recommend_user=db['Recommendation']
 		data=recommend_user.find({"user":user})
-		if(data.count()==0):
+		if((data).count()==0):
 			print("user doesn't exists!")
 			return []
 		for doc in data:

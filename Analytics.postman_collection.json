@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "19ad2602-db77-4fe3-ab1d-560402113f2e",
+		"name": "Analytics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "New Folder",
+			"item": []
+		},
+		{
+			"name": "descriptive_analytics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/analytics/?brand=tesla&duration=100",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"analytics",
+						""
+					],
+					"query": [
+						{
+							"key": "brand",
+							"value": "tesla"
+						},
+						{
+							"key": "duration",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recommend_user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/recommenderUser/?user=user2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"recommenderUser",
+						""
+					],
+					"query": [
+						{
+							"key": "user",
+							"value": "user2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "recommend_competitor",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/recommenderCompetitor/?brand=tesla",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"recommenderCompetitor",
+						""
+					],
+					"query": [
+						{
+							"key": "brand",
+							"value": "tesla"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TextualAnalytics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/Text_analytics/?brand=tesla&duration=200",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"Text_analytics",
+						""
+					],
+					"query": [
+						{
+							"key": "brand",
+							"value": "tesla"
+						},
+						{
+							"key": "duration",
+							"value": "200"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

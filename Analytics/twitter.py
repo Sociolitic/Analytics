@@ -103,8 +103,12 @@ class Twitter:
 		questions=negative_mentions[negative_mentions['cleaned_text'].str.endswith("?")]
 		#result=questions['cleaned_text'].str.contains(self.brand)
 		result= questions['cleaned_text'].str.contains("[Hh]ow") | questions['cleaned_text'].str.contains("[Ww]hat") | questions['cleaned_text'].str.contains("[Ww]here") | questions['cleaned_text'].str.contains("[wW]ho") | questions['cleaned_text'].str.contains("[Ww]hom")
-		questions=questions[result] 
-		return (list(set(questions.text)))
+		questions=questions[result]
+		finalquestions={}
+		for i in questions.index:
+			finalquestions[str(questions['id'][i])]=str(questions['text'][i]) 
+		return finalquestions
+		#return (list(set(questions.text)))
 	    
 
 	def getNegativeQuestions(self):

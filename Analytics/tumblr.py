@@ -21,12 +21,12 @@ class Tumblr:
 
 		df=pd.DataFrame(list(result))
 		try:
-		    dictonary=df['misc']
-		    new_df=pd.DataFrame(list(dictonary))
-		    self.new_df=new_df
+			dictonary=df['misc']
+			new_df=pd.DataFrame(list(dictonary))
+			self.new_df=new_df
 		except:
-		    print(df)
-		    print("data doesn't exists!")
+			print(df)
+			print("data doesn't exists!")
 
 		self.df=df
 
@@ -36,6 +36,7 @@ class Tumblr:
 			listoftags=[tag for list1 in tags for tag in list1]
 			frequency=Counter(listoftags)
 			frequency=sorted(frequency.items(),key=operator.itemgetter(1),reverse=True)
+			print(frequency[:15])
 			top15=dict(frequency[:15])
 			return frequency
 		except:

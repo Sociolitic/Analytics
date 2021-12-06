@@ -8,8 +8,8 @@ from datetime import datetime,timedelta
 import re
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-#nltk.download('stopwords',download_dir='/root/nltk_data')
-nltk.download('stopwords',download_dir='./')
+nltk.download('stopwords',download_dir='/root/nltk_data')
+#nltk.download('stopwords',download_dir='./')
 nltk.download('punkt',download_dir="./")
 nltk.download('wordnet',download_dir="./")
 stop_words = nltk.corpus.stopwords.words('english')
@@ -17,7 +17,9 @@ from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from sklearn.metrics.pairwise import cosine_similarity
 import networkx as nx
-
+from time_dependent import *
+import json
+from bson import json_util
 client=pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Social_media_data?retryWrites=true&w=majority")
 db=client['Social_media_data']
 begin=time.time()
@@ -34,23 +36,22 @@ class YouTube:
 
 		#getting numeric columns
 		try:
-		    dictonary=df['misc']
-		    numeric_df=pd.DataFrame(list(dictonary))
-		    
-		    self.numeric_df=numeric_df
+			dictonary=df['misc']
+			numeric_df=pd.DataFrame(list(dictonary))
+			self.numeric_df=numeric_df
 		except:
-		    #print(df)
-		    print("data doesn't exists!")
+			#print(df)
+			print("data doesn't exists!")
 		#print(df.columns)
 		self.df=df
 
 	def getHashTags(self):
 		try:
-		    self.tags=[tag for list1 in self.numeric_df['tags'] for tag in list1]
-		    frequency=Counter(self.tags)
-		    frequency=sorted(frequency.items(),key=operator.itemgetter(1),reverse=True)
-		    top15=dict(frequency[:15])
-		    return top15
+			self.tags=[tag for list1 in self.numeric_df['tags'] for tag in list1]
+			frequency=Counter(self.tags)
+			frequency=sorted(frequency.items(),key=operator.itemgetter(1),reverse=True)
+			top15=dict(frequency[:15])
+			return top15
 		except Exception as e:
 			print("error in get hashtags of youttube");
 			return []
@@ -73,12 +74,12 @@ class YouTube:
 
 	def ChannelsWithMoreDiscussions(self,num=10):
 		try:
-		    commentCount=self.numeric_df[['channelTitle','commentCount','id']]
-		    sorted_values=commentCount.sort_values('commentCount',axis=0,ascending=False)
-		    top_values=sorted_values.iloc[:num]
-		    data= top_values.to_dict('records')
-		    #print(type(data))
-		    return data
+			commentCount=self.numeric_df[['channelTitle','commentCount','id']]
+			sorted_values=commentCount.sort_values('commentCount',axis=0,ascending=False)
+			top_values=sorted_values.iloc[:num]
+			data= top_values.to_dict('records')
+			#print(type(data))
+			return data
 		except Exception as e:
 			print("problem with channel with mpre discussion function")
 			return []
@@ -88,9 +89,9 @@ class YouTube:
 			categorycount={}
 			for i in self.numeric_df.index:
 				if self.numeric_df['category'][i] in categorycount:
-				    categorycount[self.numeric_df['category'][i]]+=1
+					categorycount[self.numeric_df['category'][i]]+=1
 				else:
-				    categorycount[self.numeric_df['category'][i]]=0
+					categorycount[self.numeric_df['category'][i]]=0
 			return categorycount
 		except Exception as e:
 			print(e)
@@ -108,21 +109,21 @@ class YouTube:
 		try:
 			lang = detect(sentences)
 			if lang != 'en':
-		    		translator = google_translator()
-		    		sentences = translator.translate (sentences,lang_tgt='en')
+					translator = google_translator()
+					sentences = translator.translate (sentences,lang_tgt='en')
 		except :
 			try:
-		    		translator = google_translator()
-		    		sentences = translator.translate (sentences,lang_tgt='en')
+					translator = google_translator()
+					sentences = translator.translate (sentences,lang_tgt='en')
 			except:
-			    	pass
-			    	
+					pass
+					
 		#remove html elements
 		TAG_RE = re.compile(r'<[^>]+>')
 		def remove_tags(text):
-        		return TAG_RE.sub('', text)
+				return TAG_RE.sub('', text)
 		sentences=[remove_tags(r) for r in sentences]
-        	
+			
 		#remove links
 		sentences=[re.sub(r'http\S+', '', text) for text in sentences]
 		# remove punctuations, numbers and special characters
@@ -130,10 +131,10 @@ class YouTube:
 		def remove_pns(sentence):
 			return re.sub("[^a-zA-Z]"," ",sentence)
 		clean_sentences=[remove_pns(sentence) for sentence in sentences]
-    		
+			
 		# make alphabets lowercase
 		clean_sentences = [s.lower() for s in clean_sentences]
-		
+
 		#recording the new sentences of post
 		self.complete_sentences.append(clean_sentences)
 		# function to remove stopwords
@@ -145,10 +146,10 @@ class YouTube:
 		'''sentence_vectors = []
 		for i in clean_sentences:
 			if len(i) != 0:
-			    #print([word_embeddings.get(w,np.zeros((100,))) for w in i.split()])
-			    v = sum([self.word_embeddings.get(w, np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
+				#print([word_embeddings.get(w,np.zeros((100,))) for w in i.split()])
+				v = sum([self.word_embeddings.get(w, np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
 			else:
-			    v = np.zeros((100,))
+				v = np.zeros((100,))
 			sentence_vectors.append(v)'''
 		try:
 			vectorizer = TfidfVectorizer()
@@ -172,18 +173,18 @@ class YouTube:
 						sim_mat[i][j] = cosine_similarity(np.array(sentence_vectors[i]).reshape(1,len(feature_names)), np.array(sentence_vectors[j]).reshape(1,len(feature_names)))
 				except:
 					print(i,j)
-		
+
 		return sim_mat
 	def __most_discussed(self,sim_mat,sentences):
-	    #print(type(sim_mat))
-	    nx_graph = nx.from_numpy_array(sim_mat)
-	    scores = nx.pagerank(nx_graph)
-	    #print(len(scores))
-	    #sorted_scores=sorted(scores,reverse=True)
-	    #print(scores)
-	    #print("\n\n")
-	    ranked_sentences = sorted(((scores[i],s) for i,s in enumerate(sentences) ), reverse=True)
-	    return ranked_sentences[0][1]
+		#print(type(sim_mat))
+		nx_graph = nx.from_numpy_array(sim_mat)
+		scores = nx.pagerank(nx_graph)
+		#print(len(scores))
+		#sorted_scores=sorted(scores,reverse=True)
+		#print(scores)
+		#print("\n\n")
+		ranked_sentences = sorted(((scores[i],s) for i,s in enumerate(sentences) ), reverse=True)
+		return ranked_sentences[0][1]
 	def getSummary(self):
 		'''if(self.df.empty==True):
 			print("data doesn't exists!")
@@ -221,7 +222,7 @@ class YouTube:
 			text_summary[str(comments_df['id'][i])]=[self.__most_discussed(similarity_matrices[i],self.complete_sentences[i]),int(comments_df['commentCount'][i])]
 
 		return text_summary
-    		'''
+    	
     		
 		youtube_TA=db['youtubeTextualAnalytics']
 		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
@@ -236,7 +237,41 @@ class YouTube:
 		text_summary={}
 		for i in df.index:
 			text_summary[str(df['id'][i])]=[str(df['summary'][i]),int(df['commentCount'][i])]
+		return text_summary'''
+
+		youtube_TA=db.youtube_text_aggregation
+		#query={"tag":str(self.brand)}
+		res=youtube_TA.find({"tag":str(self.brand)},{"_id":0,"createdAt":0,"updatedAt":0,"profiles":0})
+		'''if(((result.count()))==0):
+			insert_data(str(self.brand))'''
+		return_result={}
+		for result in res:
+			return_result['tag']=result['tag']
+			return_result['years']=result['years']
+			return_result['months']=result['months']
+			return_result['days']=result['days']
+			return_result['hours']=result['hours']
+			return_result['mins']=result['mins']
+		return return_result
+
+
+
+	def getSummary_dup(self):
+		youtube_TA=db['youtubeTextualAnalytics']
+		minimum_time=minimumtime=datetime.now()-timedelta(days=self.duration)
+		query={"tag":str(self.brand),"created_time":{"$gte":minimumtime}}
+		#print(cursor.count())
+		result=youtube_TA.find(query)
+		print(result.count())
+		df=pd.DataFrame(list(result))
+		df=df.head(20)
+		#print(df)
+		#print("hello")
+		text_summary={}
+		for i in df.index:
+			text_summary[str(df['id'][i])]=[str(df['summary'][i]),int(df['commentCount'][i])]
 		return text_summary
+
 
 	def negativeQuestions(self):
 		pass
